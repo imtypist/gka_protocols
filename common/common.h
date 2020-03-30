@@ -71,11 +71,6 @@ typedef unsigned int uint;
 #define FILE_EXT "pem"
 #endif
 
-/* clq_get_cert stuff */
-#define DSA_PARAM_CERT "dsa_param.pem"
-#define PUB_CERT "cert"
-#define CA_CERT_FN "cacert.pem"
-
 /* Macros not implemented in SSL */
 #ifndef d2i_DSAPublicKey_bio
 #define d2i_DSAPublicKey_bio(bp,x) (DSA *)ASN1_d2i_bio((char *(*)())DSA_new, \

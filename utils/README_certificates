@@ -1,0 +1,41 @@
+Generate RSA certificates:
+
+1. Generate a self-signed certificate for CA
+   a. Create the demoCA directory
+      (e.g. mkdir /root/demoCA
+      cd /root/demoCA
+      /root/demoCA> touch index.txt serial
+      /root/demoCA> sh -c "echo '01' > .serial"
+      )
+
+      see http://www.onem2m.org/tr-0038/examples/generation-of-certificates/setting-up-a-root-ca
+ 
+   b. Specify openssl configure file (optional, depends on your os_path)
+      (e.g. export OPENSSL_CONF=/etc/ssl/openssl.cnf)
+   
+   c. Modify openssl.cnf
+      (e.g. dir = /root/demoCA      # Where everything is kept)
+   d. Now generate a self-signed CA secret key and certificate
+      (e.g. /root/demoCA> openssl req -newkey rsa:2048 -keyout cakey.pem -out cacert.pem -x509 -nodes)
+   d. If you don't have /root/demoCA/newcerts directory, make it
+      (e.g. mkdir /root/demoCA/newcerts)
+   f. Move secret key to private directory
+      (e.g. mv /root/demoCA/cakey.pem /root/demoCA/private/cakey.pem)
+
+2. Generate DH shared parameters (dsa_param.pem file)
+   openssl dsaparam -outform PEM -out dsa_param.pem 2048
+
+   For more details about the difference between generating/using Diffie-Hellman 
+   parameters and DSA parameters, see  http://www.openssl.org/docs/apps/dhparam.html#
+
+3. Generate certificate 
+    - for dsa certificates
+      gen_dsa_cert
+    - for rsa certificates
+      gen_rsa_cert
+    - for rsa certificates with public exponent 3 (e = 3) 
+      gen_rsa_e3_cert
+
+4. Rename the certificates (see the README filem naming conventio section).
+   script.pl can be used (with modifications) to do the renaming.
+
