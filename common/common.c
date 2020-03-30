@@ -84,7 +84,7 @@ static void do_ssl_setup() {
 #endif
     ERR_load_crypto_strings();
     X509V3_add_standard_extensions();
-    SSLeay_add_all_algorithms();
+    // SSLeay_add_all_algorithms();
     need_setup=0;
   }
 }
@@ -144,12 +144,13 @@ DSA *clq_get_dsa_key (char *member_name, enum CLQ_KEY_TYPE type) {
     case CLQ_PUB:
       x=clq_get_cert(member_name);
       if (x!=NULL) {
-        if (x->cert_info->key->pkey != NULL) {
-          if (NID_dsa == x->cert_info->key->pkey->type) 
-            dsa=(DSA *)x->cert_info->key->pkey->pkey.dsa; 
+        X509_PKEY* x_pkey;
+        if ((x_pkey=X509_get0_pubkey(x)) != NULL) {
+          if (NID_dsa == EVP_PKEY_id(x_pkey)) 
+            dsa=(DSA *)EVP_PKEY_get0_DSA(x_pkey); 
         }
         if (dsa!=NULL){
-          x->cert_info->key->pkey->pkey.dsa=NULL;
+          EVP_PKEY_set1_DSA(x_pkey, NULL);
         }
         
         X509_free(x);
@@ -289,7 +290,9 @@ X509 *clq_vrfy_cert(X509_STORE *ctx, char *file) {
   X509 *x=NULL;
   BIO *in=NULL;
   int i=0;
-  X509_STORE_CTX csc;
+  X509_STORE_CTX* csc;// X509_STORE_CTX csc;
+
+  if((csc=X509_STORE_CTX_new())==NULL) goto error;
   
   ERR_load_crypto_strings();
   if (file == NULL) goto error;
@@ -324,9 +327,9 @@ X509 *clq_vrfy_cert(X509_STORE *ctx, char *file) {
   }
   /* x->cert_info->key->pkey=X509_get_pubkey(x); */
   
-  X509_STORE_CTX_init(&csc,ctx,x,NULL); 
-  i=X509_verify_cert(&csc); /* cacert retrieved from disk */
-  X509_STORE_CTX_cleanup(&csc);
+  X509_STORE_CTX_init(csc,ctx,x,NULL); 
+  i=X509_verify_cert(csc); /* cacert retrieved from disk */
+  X509_STORE_CTX_cleanup(csc);
   
   error:
   if (!i) {
@@ -336,6 +339,8 @@ X509 *clq_vrfy_cert(X509_STORE *ctx, char *file) {
     ERR_print_errors(cert_bio_err);
 #endif
   }
+
+  if(csc != NULL) X509_STORE_CTX_free(csc);
   
   if (in != NULL) BIO_free(in);
   

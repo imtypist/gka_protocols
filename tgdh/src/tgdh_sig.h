@@ -25,7 +25,7 @@
 
 /* Both md below use sha1 */
 #define RSA_MD() EVP_sha1() /* NID_sha1WithRSAEncryption see m_sha1.c */
-#define DSA_MD() EVP_dss1() /* NID_dsaWithSHA1 see m_dss1.c */
+#define DSA_MD() EVP_sha1() // EVP_dss1() has been removed /* NID_dsaWithSHA1 see m_dss1.c */
 
 typedef struct tgdh_sign_st {
   clq_uchar *signature;
