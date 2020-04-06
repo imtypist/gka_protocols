@@ -277,12 +277,12 @@ X509 *clq_get_cert (char *member_name) {
   ERR_clear_error();
   
   x=clq_vrfy_cert(cert_ctx,file_path);
-  
   error:
   if (cert_ctx != NULL) X509_STORE_free(cert_ctx);
   if (x != NULL) return x;
   
   cert_error=INVALID_CERT_FILE;
+  printf("cert_error: %d\n", cert_error);
   return NULL;
 }
 
